@@ -1,0 +1,20 @@
+### Post a reading
+POST http://localhost:3000/readings
+Content-Type: application/json
+
+{
+    "sensor_id": "living-room",
+    "temperature": 21.5,
+    "humidity": 63.2,
+    "air_quality": 142
+}
+
+### Get all readings
+GET http://localhost:3000/readings
+
+### Get AI compliance report
+GET http://localhost:3000/compliance
+
+
+### Get living-room compliance
+GET http://localhost:3000/compliance/living-room
