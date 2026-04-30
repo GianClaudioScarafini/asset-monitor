@@ -9,7 +9,7 @@ Built as a portfolio project at the intersection of software engineering and dig
 ## Architecture
 
 ```
-Raspberry Pi (sensors)
+Raspberry Pi ( sensors )
         ↓
 Node.js REST API (Express + SQLite)
         ↓
