@@ -8,7 +8,6 @@ function App() {
       .then(res => res.json())
       .then(data => setReadings(data));
   }, []);
-  // console.log(readings);
 
   return (
     <div>
