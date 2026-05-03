@@ -106,6 +106,11 @@ npm start
 Server runs on `http://localhost:3000`
 
 ---
+## Dashboard
+
+![Asset Monitor Dashboard](./screenshots/dashboard.png)
+
+---
 
 ## Background
 
