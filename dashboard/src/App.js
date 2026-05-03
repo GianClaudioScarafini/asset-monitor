@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 const spec = {
     temperature: { min: 18, max: 24 },
@@ -22,16 +22,16 @@ function App() {
     const [history, setHistory] = useState([]);
 
     useEffect(() => {
-    async function fetchData(){
-        const res = await fetch('http://localhost:4000/readings');
-        const data = await res.json()
-        setReadings(data.slice(0, 1)); // latest reading only
-    };
+        async function fetchData() {
+            const res = await fetch('http://localhost:4000/readings');
+            const data = await res.json()
+            setReadings(data.slice(0, 1)); // latest reading only
+        };
 
-    fetchData();
-    fetchHistory();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
+        fetchData();
+        fetchHistory();
+        const interval = setInterval(fetchData, 30000);
+        return () => clearInterval(interval);
     }, []);
 
 
@@ -43,56 +43,74 @@ function App() {
         setLoading(false)
     }
 
-    async function fetchHistory () {
-            const response = await fetch('http://localhost:4000/readings');
-            const data = await response.json();
-            setHistory(data.reverse()); 
+    async function fetchHistory() {
+        const response = await fetch('http://localhost:4000/readings');
+        const data = await response.json();
+        setHistory(data.reverse());
     }
 
 
     return (
-    <div style={{ padding: '20px',
-        fontFamily: 'sans-serif',
-        backgroundColor: '#1a1a2e',
-        minHeight: '100vh',
-        color: '#e0e0e0'}}>
-        <h1>Asset Monitor</h1>
-        {readings.map(r => {
-        const compliant = isCompliant(r);
-        return (
-                <div key={r.id} style={{
-                padding: '20px',
-                marginBottom: '10px',
-                borderRadius: '8px',
-                backgroundColor: compliant ? '#1a3a2a' : '#3a1a1a',
-                borderLeft: `6px solid ${compliant ? '#00c853' : '#ff1744'}`
-                }}>
-                <h2>{r.sensor_id} — {compliant ? '✅ COMPLIANT' : '❌ NON-COMPLIANT'}</h2>
-                <p>🌡️ Temperature: {r.temperature}°C</p>
-                <p>💧 Humidity: {r.humidity}%</p>
-                <p>💨 Air Quality: {r.air_quality ?? 'N/A'}</p>
-                <p style={{ color: '#888', fontSize: '12px' }}>{r.timestamp}</p>
-                <button onClick={fetchReport}  disabled={loading}>
-                    {loading ? 'Analysing...' : 'Get AI Report'}
-                </button>
-                {report && <p>{report}</p>}
+        <div style={{
+            padding: '20px',
+            fontFamily: 'sans-serif',
+            backgroundColor: '#1a1a2e',
+            minHeight: '100vh',
+            color: '#e0e0e0'
+        }}>
+            <h1>Asset Monitor</h1>
+            {readings.map(r => {
+                const compliant = isCompliant(r);
+                return (
+                    <div key={r.id} style={{
+                        padding: '20px',
+                        marginBottom: '10px',
+                        borderRadius: '8px',
+                        backgroundColor: compliant ? '#1a3a2a' : '#3a1a1a',
+                        borderLeft: `6px solid ${compliant ? '#00c853' : '#ff1744'}`
+                    }}>
+                        <h2>{r.sensor_id} — {compliant ? '✅ COMPLIANT' : '❌ NON-COMPLIANT'}</h2>
+                        <p>🌡️ Temperature: {r.temperature}°C</p>
+                        <p>💧 Humidity: {r.humidity}%</p>
+                        <p>💨 Air Quality: {r.air_quality ?? 'N/A'}</p>
+                        <p style={{ color: '#888', fontSize: '12px' }}>{r.timestamp}</p>
+                        <button onClick={fetchReport} disabled={loading}>
+                            {loading ? 'Analysing...' : 'Get AI Report'}
+                        </button>
+                        {report && <p>{report}</p>}
+                    </div>
+                );
+            })}
+            <div style={{ marginTop: '30px' }}>
+                <h2>Temperature</h2>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={history}>
+                        <XAxis dataKey="timestamp" hide={true} />
+                        <YAxis domain={[15, 30]} />
+                        <Tooltip />
+                        <Legend />
+                        <ReferenceLine y={24} stroke="#ff7043" strokeDasharray="3 3" label="Max" />
+                        <ReferenceLine y={18} stroke="#ff9800" strokeDasharray="3 3" label="Min" />
+                        <Line type="monotone" dataKey="temperature" stroke="#ff7043" dot={false} />
+                    </LineChart>
+                </ResponsiveContainer>
             </div>
-        );
-        })}
-                        <div style={{ marginTop: '30px' }}>
-          <h2>Last 50 Readings</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={history}>
-              <XAxis dataKey="timestamp" hide={true} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="temperature" stroke="#ff7043" dot={false} />
-              <Line type="monotone" dataKey="humidity" stroke="#42a5f5" dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+
+            <div style={{ marginTop: '30px' }}>
+                <h2>Humidity</h2>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={history}>
+                        <XAxis dataKey="timestamp" hide={true} />
+                        <YAxis domain={[25, 50]} />
+                        <Tooltip />
+                        <Legend />
+                        <ReferenceLine y={60} stroke="#42a5f5" strokeDasharray="3 3" label="Max" />
+                        <ReferenceLine y={30} stroke="#64b5f6" strokeDasharray="3 3" label="Min" />
+                        <Line type="monotone" dataKey="humidity" stroke="#42a5f5" dot={false} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
         </div>
-    </div>
     );
 }
 
