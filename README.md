@@ -40,8 +40,9 @@ React Dashboard (live readings + alerts)
 - [x] POST `/readings` — ingest sensor data
 - [x] GET `/readings` — retrieve all readings
 - [x] GET `/compliance/:sensor_id` — room-specific AI compliance
-- [ ] Raspberry Pi sensor integration
-- [ ] AI compliance checking layer
+- [x] Raspberry Pi sensor integration
+- [x] AI compliance checking layer
+- [x] AI Button
 - [ ] React dashboard
 - [ ] Deployment
 
