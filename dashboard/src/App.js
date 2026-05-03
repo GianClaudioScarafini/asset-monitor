@@ -17,12 +17,13 @@ function isCompliant(reading) {
 function App() {
     const [readings, setReadings] = useState([]);
     const [report, setReport] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-    const fetchData = () => {
-        fetch('http://localhost:4000/readings')
-            .then(res => res.json())
-            .then(data => setReadings(data.slice(0, 1))); // latest reading only
+    async function fetchData(){
+        const res = await fetch('http://localhost:4000/readings');
+        const data = await res.json()
+        setReadings(data.slice(0, 1)); // latest reading only
     };
 
     fetchData();
@@ -31,15 +32,26 @@ function App() {
     }, []);
 
 
-    const fetchReport = () => {
-        fetch('http://localhost:4000/compliance/living-room')
-            .then(res => res.json())
-            .then(data => setReport(data.report));
-    };
+    async function fetchReport() {
+        setLoading(true)
+        const response = await fetch('http://localhost:4000/compliance/living-room');
+        const data = await response.json();
+        setReport(data.report)
+        setLoading(false)
+    }
+    // const fetchReport = () => {
+    //     fetch('http://localhost:4000/compliance/living-room')
+    //         .then(res => res.json())
+    //         .then(data => setReport(data.report));
+    // };
 
 
     return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' ,        padding: '20px', 
+        fontFamily: 'sans-serif',
+        backgroundColor: '#1a1a2e',
+        minHeight: '100vh',
+        color: '#e0e0e0'}}>
         <h1>Asset Monitor</h1>
         {readings.map(r => {
         const compliant = isCompliant(r);
@@ -48,15 +60,17 @@ function App() {
                 padding: '20px',
                 marginBottom: '10px',
                 borderRadius: '8px',
-                backgroundColor: compliant ? '#d4edda' : '#f8d7da',
-                borderLeft: `6px solid ${compliant ? 'green' : 'red'}`
+                backgroundColor: compliant ? '#1a3a2a' : '#3a1a1a',
+                borderLeft: `6px solid ${compliant ? '#00c853' : '#ff1744'}`
                 }}>
                 <h2>{r.sensor_id} — {compliant ? '✅ COMPLIANT' : '❌ NON-COMPLIANT'}</h2>
                 <p>🌡️ Temperature: {r.temperature}°C</p>
                 <p>💧 Humidity: {r.humidity}%</p>
                 <p>💨 Air Quality: {r.air_quality ?? 'N/A'}</p>
-                <p style={{ color: 'grey', fontSize: '12px' }}>{r.timestamp}</p>
-                <button onClick={fetchReport}>Get AI Report</button>
+                <p style={{ color: '#888', fontSize: '12px' }}>{r.timestamp}</p>
+                <button onClick={fetchReport}  disabled={loading}>
+                    {loading ? 'Analysing...' : 'Get AI Report'}
+                </button>
                 {report && <p>{report}</p>}
             </div>
         );
