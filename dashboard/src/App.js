@@ -86,7 +86,7 @@ function App() {
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={history}>
                         <XAxis dataKey="timestamp" hide={true} />
-                        <YAxis domain={[15, 30]} />
+                        <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
                         <Tooltip />
                         <Legend />
                         <ReferenceLine y={24} stroke="#ff7043" strokeDasharray="3 3" label="Max" />
@@ -101,7 +101,7 @@ function App() {
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={history}>
                         <XAxis dataKey="timestamp" hide={true} />
-                        <YAxis domain={[25, 50]} />
+                        <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
                         <Tooltip />
                         <Legend />
                         <ReferenceLine y={60} stroke="#42a5f5" strokeDasharray="3 3" label="Max" />

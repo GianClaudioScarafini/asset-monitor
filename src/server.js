@@ -42,7 +42,7 @@ app.post('/readings', (req, res) => {
 
 // this allowing me to get and read the data on my databse
 app.get('/readings', (req, res) => {
-  const rows = db.prepare('SELECT * FROM readings ORDER BY timestamp DESC LIMIT 50').all();
+  const rows = db.prepare('SELECT * FROM readings ORDER BY timestamp DESC LIMIT 30').all();
     res.json(rows);
 });
 // port 3000 and waits for incoming requests.
