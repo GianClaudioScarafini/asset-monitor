@@ -42,11 +42,6 @@ function App() {
         setReport(data.report)
         setLoading(false)
     }
-    // const fetchReport = () => {
-    //     fetch('http://localhost:4000/compliance/living-room')
-    //         .then(res => res.json())
-    //         .then(data => setReport(data.report));
-    // };
 
     async function fetchHistory () {
             const response = await fetch('http://localhost:4000/readings');
@@ -56,7 +51,7 @@ function App() {
 
 
     return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' ,        padding: '20px', 
+    <div style={{ padding: '20px',
         fontFamily: 'sans-serif',
         backgroundColor: '#1a1a2e',
         minHeight: '100vh',
@@ -72,19 +67,6 @@ function App() {
                 backgroundColor: compliant ? '#1a3a2a' : '#3a1a1a',
                 borderLeft: `6px solid ${compliant ? '#00c853' : '#ff1744'}`
                 }}>
-                            <div style={{ marginTop: '30px' }}>
-          <h2>Last 50 Readings</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={history}>
-              <XAxis dataKey="timestamp" hide={true} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="temperature" stroke="#ff7043" dot={false} />
-              <Line type="monotone" dataKey="humidity" stroke="#42a5f5" dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
                 <h2>{r.sensor_id} — {compliant ? '✅ COMPLIANT' : '❌ NON-COMPLIANT'}</h2>
                 <p>🌡️ Temperature: {r.temperature}°C</p>
                 <p>💧 Humidity: {r.humidity}%</p>
@@ -97,6 +79,19 @@ function App() {
             </div>
         );
         })}
+                        <div style={{ marginTop: '30px' }}>
+          <h2>Last 50 Readings</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={history}>
+              <XAxis dataKey="timestamp" hide={true} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="temperature" stroke="#ff7043" dot={false} />
+              <Line type="monotone" dataKey="humidity" stroke="#42a5f5" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
     </div>
     );
 }
