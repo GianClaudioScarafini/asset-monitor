@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const spec = {
     temperature: { min: 18, max: 24 },
@@ -18,6 +19,7 @@ function App() {
     const [readings, setReadings] = useState([]);
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [history, setHistory] = useState([]);
 
     useEffect(() => {
     async function fetchData(){
@@ -27,6 +29,7 @@ function App() {
     };
 
     fetchData();
+    fetchHistory();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
     }, []);
@@ -44,6 +47,12 @@ function App() {
     //         .then(res => res.json())
     //         .then(data => setReport(data.report));
     // };
+
+    async function fetchHistory () {
+            const response = await fetch('http://localhost:4000/readings');
+            const data = await response.json();
+            setHistory(data.reverse()); 
+    }
 
 
     return (
@@ -63,6 +72,19 @@ function App() {
                 backgroundColor: compliant ? '#1a3a2a' : '#3a1a1a',
                 borderLeft: `6px solid ${compliant ? '#00c853' : '#ff1744'}`
                 }}>
+                            <div style={{ marginTop: '30px' }}>
+          <h2>Last 50 Readings</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={history}>
+              <XAxis dataKey="timestamp" hide={true} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="temperature" stroke="#ff7043" dot={false} />
+              <Line type="monotone" dataKey="humidity" stroke="#42a5f5" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
                 <h2>{r.sensor_id} — {compliant ? '✅ COMPLIANT' : '❌ NON-COMPLIANT'}</h2>
                 <p>🌡️ Temperature: {r.temperature}°C</p>
                 <p>💧 Humidity: {r.humidity}%</p>
