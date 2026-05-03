@@ -11,3 +11,9 @@
 - Look at Shelly smart plugs — WiFi, API accessible, no hub needed
 - Possible to correlate power spikes with sensor anomalies
 - Could extend the compliance spec to include wattage thresholds
+
+## IFC 3D Room Viewer
+- Render IFC model of flat in browser using web-ifc-viewer
+- Link sensor_id to IFC space GUIDs
+- Colour rooms red/green based on compliance status
+- Click room to see live readings and AI report
