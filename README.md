@@ -99,6 +99,9 @@ cd asset-monitor
 # Install dependencies
 npm install
 
+# Seed to populate sample data
+npm run seed
+
 # Start the server
 npm start
 ```
