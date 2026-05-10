@@ -1,8 +1,12 @@
 # Asset Monitor — IoT + AI Compliance System
 
+**Live demo:** [asset-monitor-k5r4.vercel.app](https://asset-monitor-k5r4.vercel.app)
+
 A full-stack IoT application that collects real-time environmental sensor data via a Raspberry Pi, stores it in a persistent database, and uses an AI layer to check readings against a defined asset specification — flagging non-conformances in natural language.
 
 Built as a portfolio project at the intersection of software engineering and digital construction domain expertise.
+
+
 
 ---
 
@@ -26,10 +30,10 @@ React Dashboard (live readings + alerts)
 |---|---|
 | Hardware | Raspberry Pi 4, DHT22, MQ-135 |
 | Backend | Node.js, Express |
-| Database | SQLite (better-sqlite3) |
+| Database | PostgreSQL (NeonDB) |
 | AI Layer | Anthropic Claude API |
 | Frontend | React |
-| Deployment | TBD (Railway / Vercel) |
+| Deployment | Render (API) + Vercel (dashboard) |
 
 ---
 
@@ -43,8 +47,9 @@ React Dashboard (live readings + alerts)
 - [x] Raspberry Pi sensor integration
 - [x] AI compliance checking layer
 - [x] AI Button
-- [ ] React dashboard
-- [ ] Deployment
+- [x] React dashboard
+- [x] JWT authentication
+- [x] Deployment (Render + Vercel)
 
 ---
 
