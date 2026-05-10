@@ -117,6 +117,6 @@ app.post('/auth/login', async (req, res) => {
 })
 
 // port 4000 and waits for incoming requests.
-app.listen(4000, () => {
+app.listen(process.env.PORT ||4000, () => {
     console.log('Server running on port 4000');
 });
