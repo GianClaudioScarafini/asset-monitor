@@ -4,8 +4,11 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 const { checkCompliance } = require('./ai');
-
 const jwt = require('jsonwebtoken')
+
+//store the on app all the entire express package under the const app
+const app = express();
+
 
 function authenticate(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1]
@@ -17,14 +20,13 @@ function authenticate(req, res, next) {
             jwt.verify(token, process.env.JWT_SECRET)
             next()
         } catch (error) {
-            res.status(401).json({ error: "error" })
+            res.status(401).json({ error: "Invalid or expired token" })
         }
 
     }
 }
 
-//store the on app all the entire express package under the const app
-const app = express();
+
 
 //alowed to express to read from different port
 app.use(cors());
@@ -60,10 +62,6 @@ app.post('/readings', authenticate, async (req, res) => {
 app.get('/readings', authenticate, async (req, res) => {
     const result = await pool.query('SELECT * FROM readings ORDER BY timestamp DESC LIMIT 30');
     res.json(result.rows)
-});
-// port 3000 and waits for incoming requests.
-app.listen(4000, () => {
-    console.log('Server running on port 4000');
 });
 
 // GET - AI compliance report
@@ -106,10 +104,10 @@ app.post('/auth/login', async (req, res) => {
     const { username, password } = req.body
 
     if (process.env.AUTH_USERNAME === username && process.env.AUTH_PASSWORD === password) {
-        const paylod = { username }
+        const payload = { username }
         const secret = process.env.JWT_SECRET
         const option = { expiresIn: '1h' }
-        const token = jwt.sign(paylod, secret, option)
+        const token = jwt.sign(payload, secret, option)
         res.json({ token })
 
     } else {
@@ -118,3 +116,7 @@ app.post('/auth/login', async (req, res) => {
 
 })
 
+// port 4000 and waits for incoming requests.
+app.listen(4000, () => {
+    console.log('Server running on port 4000');
+});
