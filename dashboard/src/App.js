@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
+const API_URL = process.env.REACT_APP_API_URL || '${API_URL}';
+
 const spec = {
     temperature: { min: 18, max: 24 },
     humidity: { min: 30, max: 60 },
@@ -27,7 +29,7 @@ function App() {
     useEffect(() => {
         if (!token) return;
         async function fetchData() {
-            const res = await fetch('http://localhost:4000/readings', {
+            const res = await fetch('${API_URL}/readings', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -45,7 +47,7 @@ function App() {
 
     async function fetchReport() {
         setLoading(true)
-        const response = await fetch('http://localhost:4000/compliance/living-room', {
+        const response = await fetch('${API_URL}/compliance/living-room', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -56,7 +58,7 @@ function App() {
     }
 
     async function fetchHistory() {
-        const response = await fetch('http://localhost:4000/readings', {
+        const response = await fetch('${API_URL}/readings', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -72,7 +74,7 @@ function App() {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        const response = await fetch('http://localhost:4000/auth/login', {
+        const response = await fetch('${API_URL}/auth/login', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
