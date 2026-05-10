@@ -1,5 +1,12 @@
 # Ideas Backlog
 
+## Multi-Tenancy (Next Phase)
+- Multiple users each see only their own data — this pattern is called **row-level data ownership**
+- Requires: `users` table, hashed passwords (`bcrypt`), `POST /auth/register` endpoint
+- Add `user_id` foreign key to `readings` table
+- Filter all queries by `user_id` so data is isolated per user
+- Foundation of almost every SaaS product
+
 ## IFC Viewer Integration
 - Parse IFC file to extract room/space data
 - Link sensor_id to IFC space GUIDs
