@@ -20,10 +20,18 @@ function App() {
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [token, setToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
+        if (!token) return;
         async function fetchData() {
-            const res = await fetch('http://localhost:4000/readings');
+            const res = await fetch('http://localhost:4000/readings', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await res.json()
             setReadings(data.slice(0, 1)); // latest reading only
         };
@@ -32,24 +40,119 @@ function App() {
         fetchHistory();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [token]);
 
 
     async function fetchReport() {
         setLoading(true)
-        const response = await fetch('http://localhost:4000/compliance/living-room');
+        const response = await fetch('http://localhost:4000/compliance/living-room', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         const data = await response.json();
         setReport(data.report)
         setLoading(false)
     }
 
     async function fetchHistory() {
-        const response = await fetch('http://localhost:4000/readings');
+        const response = await fetch('http://localhost:4000/readings', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         const data = await response.json();
         setHistory(data.reverse());
     }
 
+    function handlechange(e) {
+        if (e.target.name === 'username') setUsername(e.target.value)
+        if (e.target.name === 'password') setPassword(e.target.value)
+    }
 
+    async function handleSubmit(e) {
+        e.preventDefault()
+        const response = await fetch('http://localhost:4000/auth/login', {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        });
+        const data = await response.json()
+        if (response.ok) {
+            localStorage.setItem('token', data.token)
+            setToken(data.token)
+        } else {
+            alert('Wrong username or password')
+        }
+    }
+
+    function logout(){
+        localStorage.removeItem('token');
+        setToken(null)
+    }
+    if (!token) {
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '100vh',
+                backgroundColor: '#1a1a2e',
+                fontFamily: 'sans-serif'
+            }}>
+                <form onSubmit={handleSubmit} style={{
+                    backgroundColor: '#16213e',
+                    padding: '40px',
+                    borderRadius: '12px',
+                    width: '320px',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+                }}>
+                    <h2 style={{ color: '#e0e0e0', marginTop: 0, marginBottom: '24px', textAlign: 'center' }}>
+                        Asset Monitor
+                    </h2>
+
+                    <label style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Username
+                    </label>
+                    <input
+                        name='username'
+                        type='text'
+                        value={username}
+                        onChange={handlechange}
+                        style={{
+                            display: 'block', width: '100%', marginTop: '6px', marginBottom: '16px',
+                            padding: '10px 12px', backgroundColor: '#0f3460', border: '1px solid #1a4a7a',
+                            borderRadius: '6px', color: '#e0e0e0', fontSize: '14px', boxSizing: 'border-box'
+                        }}
+                    />
+                    <label style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Password
+                    </label>
+                    <input
+                        name='password'
+                        type='password'
+                        value={password}
+                        onChange={handlechange}
+                        style={{
+                            display: 'block', width: '100%', marginTop: '6px', marginBottom: '24px',
+                            padding: '10px 12px', backgroundColor: '#0f3460', border: '1px solid #1a4a7a',
+                            borderRadius: '6px', color: '#e0e0e0', fontSize: '14px', boxSizing: 'border-box'
+                        }}
+                    />
+                    <button type="submit" style={{
+                        width: '100%', padding: '12px', backgroundColor: '#00c853',
+                        border: 'none', borderRadius: '6px', color: '#000',
+                        fontWeight: 'bold', fontSize: '14px', cursor: 'pointer'
+                    }}>
+                        Log In
+                    </button>
+                </form>
+            </div>
+        );
+    }
     return (
         <div style={{
             padding: '20px',
@@ -59,6 +162,9 @@ function App() {
             color: '#e0e0e0'
         }}>
             <h1>Asset Monitor</h1>
+            <button onClick={logout}>
+                logout
+            </button>
             {readings.map(r => {
                 const compliant = isCompliant(r);
                 return (
@@ -111,7 +217,9 @@ function App() {
                 </ResponsiveContainer>
             </div>
         </div>
-    );
+    )
+
+
 }
 
 export default App;
