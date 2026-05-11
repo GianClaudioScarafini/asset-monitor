@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { ClerkProvider, SignIn, SignedIn, SignedOut, UserButton, useAuth } from '@clerk/clerk-react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
@@ -22,137 +23,59 @@ function App() {
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const { getToken, isLoaded, isSignedIn } = useAuth();
+
+
 
     useEffect(() => {
-        if (!token) return;
+        if (!isLoaded || !isSignedIn) return;
         async function fetchData() {
+            const token = await getToken();
             const res = await fetch(`${API_URL}/readings`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             });
-            const data = await res.json()
-            setReadings(data.slice(0, 1)); // latest reading only
-        };
-
+            const data = await res.json();
+            setReadings(data.slice(0, 1));
+        }
         fetchData();
         fetchHistory();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token]);
+    }, [isLoaded, isSignedIn]);
 
 
     async function fetchReport() {
         setLoading(true)
-        const response = await fetch(`${API_URL}/compliance/living-room`, {
+        const token = await getToken();
+        const res = await fetch(`${API_URL}/compliance/living-room`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        const data = await response.json();
+        const data = await res.json();
         setReport(data.report)
         setLoading(false)
     }
 
     async function fetchHistory() {
-        const response = await fetch(`${API_URL}/readings`, {
+        const token = await getToken();
+        const res = await fetch(`${API_URL}/readings`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
-        const data = await response.json();
+        const data = await res.json();
         setHistory(data.reverse());
     }
 
-    function handlechange(e) {
-        if (e.target.name === 'username') setUsername(e.target.value)
-        if (e.target.name === 'password') setPassword(e.target.value)
-    }
-
-    async function handleSubmit(e) {
-        e.preventDefault()
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username,
-                password
-            })
-        });
-        const data = await response.json()
-        if (response.ok) {
-            localStorage.setItem('token', data.token)
-            setToken(data.token)
-        } else {
-            alert('Wrong username or password')
-        }
-    }
-
-    function logout(){
-        localStorage.removeItem('token');
-        setToken(null)
-    }
-    if (!token) {
+    if (!isLoaded || !isSignedIn) {
         return (
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '100vh',
-                backgroundColor: '#1a1a2e',
-                fontFamily: 'sans-serif'
-            }}>
-                <form onSubmit={handleSubmit} style={{
-                    backgroundColor: '#16213e',
-                    padding: '40px',
-                    borderRadius: '12px',
-                    width: '320px',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
-                }}>
-                    <h2 style={{ color: '#e0e0e0', marginTop: 0, marginBottom: '24px', textAlign: 'center' }}>
-                        Asset Monitor
-                    </h2>
-
-                    <label style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        Username
-                    </label>
-                    <input
-                        name='username'
-                        type='text'
-                        value={username}
-                        onChange={handlechange}
-                        style={{
-                            display: 'block', width: '100%', marginTop: '6px', marginBottom: '16px',
-                            padding: '10px 12px', backgroundColor: '#0f3460', border: '1px solid #1a4a7a',
-                            borderRadius: '6px', color: '#e0e0e0', fontSize: '14px', boxSizing: 'border-box'
-                        }}
-                    />
-                    <label style={{ color: '#888', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        Password
-                    </label>
-                    <input
-                        name='password'
-                        type='password'
-                        value={password}
-                        onChange={handlechange}
-                        style={{
-                            display: 'block', width: '100%', marginTop: '6px', marginBottom: '24px',
-                            padding: '10px 12px', backgroundColor: '#0f3460', border: '1px solid #1a4a7a',
-                            borderRadius: '6px', color: '#e0e0e0', fontSize: '14px', boxSizing: 'border-box'
-                        }}
-                    />
-                    <button type="submit" style={{
-                        width: '100%', padding: '12px', backgroundColor: '#00c853',
-                        border: 'none', borderRadius: '6px', color: '#000',
-                        fontWeight: 'bold', fontSize: '14px', cursor: 'pointer'
-                    }}>
-                        Log In
-                    </button>
-                </form>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#1a1a2e', gap: '24px' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <h1 style={{ color: '#e0e0e0', margin: 0, fontSize: '28px', fontFamily: 'sans-serif' }}>Asset Monitor</h1>
+                    <p style={{ color: '#888', margin: '8px 0 0', fontFamily: 'sans-serif', fontSize: '14px' }}>IoT Compliance Dashboard</p>
+                </div>
+                <SignIn />
             </div>
         );
     }
@@ -165,9 +88,7 @@ function App() {
             color: '#e0e0e0'
         }}>
             <h1>Asset Monitor</h1>
-            <button onClick={logout}>
-                logout
-            </button>
+            <UserButton />
             {readings.map(r => {
                 const compliant = isCompliant(r);
                 return (
@@ -225,4 +146,33 @@ function App() {
 
 }
 
-export default App;
+
+const clerkAppearance = {
+    variables: {
+        fontFamily: 'sans-serif',
+        colorBackground: '#16213e',
+        colorInputBackground: '#0f3460',
+        colorInputText: '#e0e0e0',
+        colorText: '#e0e0e0',
+        colorTextSecondary: '#888',
+        colorPrimary: '#00c853',
+        borderRadius: '8px',
+    },
+    elements: {
+        card: { boxShadow: '0 8px 32px rgba(0,0,0,0.4)', border: 'none' },
+        headerTitle: { display: 'none' },
+        headerSubtitle: { display: 'none' },
+        formButtonPrimary: { backgroundColor: '#00c853', color: '#000', fontWeight: 'bold' },
+        socialButtonsBlockButton: { backgroundColor: '#ffffff', color: '#000', border: '1px solid #ccc' },
+        socialButtonsBlockButtonText: { color: '#000', fontWeight: '500' },
+        footerActionLink: { color: '#00c853' },
+    }
+};
+
+export default function Root() {
+    return (
+        <ClerkProvider publishableKey={process.env.REACT_APP_CLERK_PUBLISHABLE_KEY} appearance={clerkAppearance}>
+            <App />
+        </ClerkProvider>
+    );
+}
