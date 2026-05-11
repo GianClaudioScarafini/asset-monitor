@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { ClerkProvider, SignIn, SignedIn, SignedOut, UserButton, useAuth } from '@clerk/clerk-react';
+import { ClerkProvider, SignIn, UserButton, useAuth } from '@clerk/clerk-react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
@@ -41,6 +41,7 @@ function App() {
         fetchHistory();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoaded, isSignedIn]);
 
 
